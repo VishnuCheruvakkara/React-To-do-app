@@ -1,32 +1,29 @@
 
-import React, { Component } from "react"
-
-
+import React, { Component } from "react";
 class Counter extends Component{
     state = {
         counter:0
     }
-    countIncriment = () => {
+    incriment = () => {
         this.setState({
-            counter:this.state.counter+1
+            counter: this.state.counter += 1
+        });
+    };
+    decriment = () => {
+        this.setState({
+            counter:this.state.counter-=1
         })
     }
-    countDecriment = () => {
-        this.setState({
-            counter:this.state.counter-1
-        })
-    }
-
     render() {
         return (
             <div>
-                <h1>Event</h1>
-                <h2>Counter Component</h2>
-                <button onClick={countIncriment} >+</button>
-                <button onClick={countDecriment}>-</button>
+                <h2>Coutner Component</h2>
+                <button onClick={this.incriment}>+</button>
+                <button onClick={this.decriment}>-</button>
+                <h3>{ this.state.counter}</h3>
             </div>
         )
     }
 }
 
-export default Counter;
+export default Counter
