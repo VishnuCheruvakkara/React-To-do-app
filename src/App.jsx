@@ -2,7 +2,8 @@ import { useState } from 'react'
 import React, { Component } from "react"
 import './App.css'
 import Todo from "./components/Todo"
-import Counter from "./components/Counter"
+// import Counter from "./components/Counter"
+import Forms from "./components/Forms"
 
 // function App() {
 //   const [count, setCount] = useState(0)
@@ -34,7 +35,9 @@ class App extends Component {
         <h1>{this.state.myString}</h1>
         <button onClick={this.handleChange}>Change Text</button>
         <Todo sendingData={this.state.myStringOne} /> */}
-        <Counter></Counter>
+        {/* <Counter></Counter> */}
+
+        <Forms></Forms>
       </div>
 
     )
