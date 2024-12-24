@@ -1,9 +1,13 @@
 
-import React, { useState } from "react"
+import React, { useState,useEffect } from "react"
 import { MdFormatListBulletedAdd } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import { GrCompliance } from "react-icons/gr";
+import { IoMdRefreshCircle } from "react-icons/io";
+import { GiCancel } from "react-icons/gi";
+import { MdCancel } from "react-icons/md";
+import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 
 function Todo() {
     // state sections, down below...
@@ -14,17 +18,35 @@ function Todo() {
     const [isModalOpen, setModalOpen] = useState(false)
     //state for edit data 
     const [editData, setEditData] = useState(null)
+    //Handle error message
+    const [errorMessage, setErrorMessage] = useState('')
+
+    //load data from the local-storage when componetDidMount
+    useEffect(() => {
+        const storedData = JSON.parse(localStorage.getItem("todoTasks"))
+        if (storedData) {
+            setData(storedData)
+        }
+    }, [])
+    //Save the data into the local-storage whenever taks are updated | Like componentDidUpdate
+    useEffect(() => {
+        if (datas.length > 0) {
+            localStorage.setItem("todoTasks",JSON.stringify(datas))
+        }
+    },[datas])
+
+
     //add data inputs in to the data...
     const addToData = () => {
-
-        if (input !== '') {
+        const trimmedInput=input.trim()
+        if (trimmedInput !== '') {
             setData([...datas, { id: Date.now(), list: input, status: false }])
             // after adding new data clear the input field for new data 
             setInput('')
         }
     }
 
-   
+
 
     //clear all the tasks 
     const clearAllTasks = () => {
@@ -52,18 +74,22 @@ function Todo() {
     }
     //
     const saveEdit = () => {
-        if (editData) {
-            const updatedData = datas.map((data) => {
-                return data.id === editData.id ? { ...data, list: editData.list } : data
-            })
-            setData(updatedData)
-            setModalOpen(false)
-            setEditData(null)
+        if (!editData || !editData.list.trim()) {
+            setErrorMessage('Please enter a valid task!')
+            return;
         }
+        const updatedData = datas.map((data) => {
+            return data.id === editData.id ? { ...data, list: editData.list } : data
+        })
+        setData(updatedData)
+        setModalOpen(false)
+        setEditData(null)
+        setErrorMessage('')
     }
     //close edit modal 
     const closeEditModal = () => {
         setModalOpen(false)
+        setErrorMessage('')
     }
     return (
         <div className="min-h-screen bg-gradient-to-r from-lime-300 to-lime-700 flex items-center justify-center p-4">
@@ -86,7 +112,7 @@ function Todo() {
                         placeholder="Add a new task..."
                         value={input}
                         onChange={(event) => setInput(event.target.value)}
-                        className="flex-1 p-4 border-2 border-lime-500 rounded-l-xl focus:outline-none focus:ring-0 focus:ring-lime-300 h-14" // Ensures input height is fixed
+                        className="flex-1 p-4 border-2 border-lime-500 rounded-l-xl focus:outline-none focus:ring-0 focus:ring-lime-300 h-14 font-semibold text-gray-700 text-lg" // Ensures input height is fixed
                     />
                     <button
                         onClick={addToData}
@@ -115,7 +141,7 @@ function Todo() {
                                         onClick={() => CompleteById(data.id)}
                                         class="text-2xl text-lime-600 hover:text-blue-500 cursor-pointer"
                                     />
-                                    <span onClick={() => CompleteById(data.id)} className={`text-xl font-semibold ${data.status ? "line-through text-gray-500" : "text-gray-800"} cursor-pointer`}>{data.list}</span>
+                                    <span onClick={() => CompleteById(data.id)} className={`text-lg font-semibold ${data.status ? "line-through text-gray-400" : "text-gray-700"} cursor-pointer`}>{data.list}</span>
                                 </div>
                                 <div className="flex space-x-4">
                                     {/* Edit Button */}
@@ -149,45 +175,53 @@ function Todo() {
                                         <div className="bg-white rounded-lg shadow-lg w-96 p-6 relative">
                                             {/* Modal Header */}
                                             <div className="flex justify-between items-center border-b pb-3">
-                                                <h2 className="text-xl font-bold text-gray-800">
+                                                <h2 className="text-xl font-bold text-lime-900 ">
                                                     {/* Modal Title */}
                                                     Edit Task
                                                 </h2>
                                                 <button
-                                                    className="text-gray-400 hover:text-gray-600 transition"
+                                                    className="text-lime-900 hover:text-gray-800 transition"
                                                     id="close-modal" // Close modal button
                                                     onClick={closeEditModal}
                                                 >
-                                                    ✕
+                                                    <GiCancel class="text-xl" />
                                                 </button>
                                             </div>
                                             {/* Modal Body */}
                                             <div className="mt-4">
                                                 <input
                                                     type="text"
-                                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-lime-500"
+                                                    className="w-full p-3 border-2 border-lime-600 rounded-lg focus:outline-none text-lg font-semibold text-gray-700"
                                                     placeholder="Edit your task..." // Input field for editing task
                                                     value={editData.list}
                                                     onChange={(data) =>
-                                                        setEditData({...editData,list:data.target.value})
+                                                        setEditData({ ...editData, list: data.target.value })
                                                     }
                                                 />
                                             </div>
+                                            {/* Error Message */}
+                                            {errorMessage && (
+                                                <div className="mt-2 text-lg text-red-400 font-semibold">
+                                                    {errorMessage}
+                                                </div>
+                                            )}
                                             {/* Modal Footer */}
                                             <div className="flex justify-end space-x-3 mt-6">
                                                 <button
-                                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                                                    className="px-2 py-2 text-white rounded-full border border-lime-600 hover:border-gray-700 bg-lime-700 hover:bg-gray-400 hover:text-gray-700 transition duration-300 "
                                                     id="cancel-btn" // Cancel button
+                                                    title="Cancel"
                                                     onClick={closeEditModal}
                                                 >
-                                                    Cancel
+                                                    <MdCancel class="text-3xl" />
                                                 </button>
                                                 <button
-                                                    className="px-4 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-700 transition"
+                                                    className="px-2 py-2 text-white rounded-full border border-lime-600 hover:border-red-800 bg-lime-700 hover:bg-red-200 hover:text-red-800 transition duration-300 "
                                                     id="save-btn" // Save button
+                                                    title="Save"
                                                     onClick={saveEdit}
                                                 >
-                                                    Save
+                                                    <IoCheckmarkDoneCircleOutline class="text-3xl" />
                                                 </button>
                                             </div>
                                         </div>
@@ -202,10 +236,11 @@ function Todo() {
                 <div className="mt-8 text-center">
                     <button
                         onClick={clearAllTasks}
-                        className="bg-yellow-500 text-white py-2 px-6 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition duration-300"
+                        title="Remove All"
+                        className="px-2 py-2 text-white rounded-full border border-lime-600 bg-lime-700 hover:bg-lime-500 hover:text-lime-900 transition duration-300 "
                     >
-                        
-                        Clear All
+
+                        < IoMdRefreshCircle class="text-3xl" />
                     </button>
                 </div>
             </div>

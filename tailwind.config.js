@@ -5,8 +5,18 @@ export default {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+ 
+    },
   },
-  plugins: [],
+  plugins: [
+    function({ addBase }) {
+      addBase({
+        '::selection': {
+          backgroundColor: '#4e7d10', // Custom selection background color
+          color: '#ffffff', // Custom text color when selected
+        },
+      });
+    },
+  ],
 }
-
