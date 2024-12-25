@@ -1,5 +1,7 @@
 
-import React, { useState,useEffect } from "react"
+import React, { useState, useEffect } from "react"
+
+//Icons used form react-icons, below...
 import { MdFormatListBulletedAdd } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
@@ -8,6 +10,7 @@ import { IoMdRefreshCircle } from "react-icons/io";
 import { GiCancel } from "react-icons/gi";
 import { MdCancel } from "react-icons/md";
 import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
+import { MdError } from "react-icons/md";
 
 function Todo() {
     // state sections, down below...
@@ -18,8 +21,10 @@ function Todo() {
     const [isModalOpen, setModalOpen] = useState(false)
     //state for edit data 
     const [editData, setEditData] = useState(null)
-    //Handle error message
-    const [errorMessage, setErrorMessage] = useState('')
+    //Handle modal error message
+    const [modalErrorMessage, setModalErrorMessage] = useState('')
+    //Handle inpput error message
+    const [inputErrorMessage, setInputErrorMessage] = useState('')
 
     //load data from the local-storage when componetDidMount
     useEffect(() => {
@@ -31,23 +36,24 @@ function Todo() {
     //Save the data into the local-storage whenever taks are updated | Like componentDidUpdate
     useEffect(() => {
         if (datas.length > 0) {
-            localStorage.setItem("todoTasks",JSON.stringify(datas))
+            localStorage.setItem("todoTasks", JSON.stringify(datas))
         }
-    },[datas])
-
-
+    }, [datas])
     //add data inputs in to the data...
     const addToData = () => {
-        const trimmedInput=input.trim()
+        const trimmedInput = input.trim()
         if (trimmedInput !== '') {
-            setData([...datas, { id: Date.now(), list: input, status: false }])
+            setData([...datas, { id: Date.now(), list: trimmedInput, status: false }])
             // after adding new data clear the input field for new data 
             setInput('')
+            if (errorMessage) {
+                setInputErrorMessage("")
+            }
+        }
+        else {
+            setInputErrorMessage("Error : Add a valid Task!")
         }
     }
-
-
-
     //clear all the tasks 
     const clearAllTasks = () => {
         setData([])
@@ -72,10 +78,11 @@ function Todo() {
         setEditData(taskToEdit);
         setModalOpen(true)
     }
-    //
+    //Save edited tasks...
     const saveEdit = () => {
+
         if (!editData || !editData.list.trim()) {
-            setErrorMessage('Please enter a valid task!')
+            setModalErrorMessage('Error : Please enter a valid task!')
             return;
         }
         const updatedData = datas.map((data) => {
@@ -84,13 +91,20 @@ function Todo() {
         setData(updatedData)
         setModalOpen(false)
         setEditData(null)
-        setErrorMessage('')
+        setModalErrorMessage('')
     }
     //close edit modal 
     const closeEditModal = () => {
         setModalOpen(false)
-        setErrorMessage('')
+        setModalErrorMessage('')
     }
+    useEffect(() => {
+        if (inputErrorMessage) {
+            const timer = setTimeout(() => {
+                setInputErrorMessage('')
+            }, 5000)
+        }
+    }, [inputErrorMessage])
     return (
         <div className="min-h-screen bg-gradient-to-r from-lime-300 to-lime-700 flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-md shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto">
@@ -106,7 +120,7 @@ function Todo() {
 
                 {/* Input Section */}
 
-                <form className="flex items-center mb-6" action="" >
+                <form className="flex items-center mb-1" action="" >
                     <input
                         type="text"
                         placeholder="Add a new task..."
@@ -124,24 +138,29 @@ function Todo() {
                     </button>
 
                 </form>
-
-
-
+                {/* Error Message */}
+                {inputErrorMessage && (
+                    <div className="mb-2 text-lg text-red-400 font-semibold flex items-center">
+                        <MdError className="mr-2 text-2xl" /> {inputErrorMessage}
+                    </div>
+                )}
 
                 {/* Task List */}
-                <ul className="space-y-4">
+                <ul className="space-y-4 mt-4">
                     {
                         datas.map((data) => (
 
                             <li className="flex items-center justify-between border-b border-gray-200 py-4 px-6 rounded-xl shadow-md transition duration-300 ease-in-out hover:bg-lime-200">
-                                <div className="flex items-center space-x-4">
-                                    <GrCompliance
+                                <div className="flex min-w-0 items-center space-x-4">
+                                    <button
                                         id="complete"
                                         title="Mark as Completed"
                                         onClick={() => CompleteById(data.id)}
-                                        class="text-2xl text-lime-600 hover:text-blue-500 cursor-pointer"
-                                    />
-                                    <span onClick={() => CompleteById(data.id)} className={`text-lg font-semibold ${data.status ? "line-through text-gray-400" : "text-gray-700"} cursor-pointer`}>{data.list}</span>
+                                        class="text-2xl text-lime-600 hover:text-blue-500 cursor-pointer">
+                                        <GrCompliance />
+                                    </button>
+
+                                    <span onClick={() => CompleteById(data.id)} className={`text-lg font-semibold ${data.status ? "line-through text-gray-400" : "text-gray-700"} cursor-pointe truncate cursor-pointer`}>{data.list}</span>
                                 </div>
                                 <div className="flex space-x-4">
                                     {/* Edit Button */}
@@ -161,8 +180,6 @@ function Todo() {
                                         <MdDelete />
                                     </button>
                                 </div>
-
-
 
                                 {/* Edit modal */}
 
@@ -200,9 +217,9 @@ function Todo() {
                                                 />
                                             </div>
                                             {/* Error Message */}
-                                            {errorMessage && (
-                                                <div className="mt-2 text-lg text-red-400 font-semibold">
-                                                    {errorMessage}
+                                            {modalErrorMessage && (
+                                                <div className="mt-1 text-lg text-red-400 font-semibold flex items-center">
+                                                    < MdError className="text-2xl mr-2" />{modalErrorMessage}
                                                 </div>
                                             )}
                                             {/* Modal Footer */}
@@ -237,7 +254,7 @@ function Todo() {
                     <button
                         onClick={clearAllTasks}
                         title="Remove All"
-                        className="px-2 py-2 text-white rounded-full border border-lime-600 bg-lime-700 hover:bg-lime-500 hover:text-lime-900 transition duration-300 "
+                        className="px-2 py-2 text-white rounded-full border border-lime-600 hover:border-red-800 bg-lime-700 hover:bg-red-200 hover:text-red-800 transition duration-300 "
                     >
 
                         < IoMdRefreshCircle class="text-3xl" />
@@ -248,5 +265,4 @@ function Todo() {
         </div>
     )
 }
-
 export default Todo
