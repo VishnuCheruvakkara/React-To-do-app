@@ -1,9 +1,6 @@
 
 import React, { useState, useEffect } from "react"
-//importing mobile nav
-import MobileNav from './mobileNav'
-//import the head nav 
-import HeadNav from './HeadNav'
+
 
 //Icons used form react-icons, below...
 import { MdFormatListBulletedAdd } from "react-icons/md";
@@ -111,7 +108,7 @@ function Todo() {
     }, [inputErrorMessage])
     return (
         <>
-        <HeadNav> </HeadNav>
+      
         <div className="min-h-screen bg-gradient-to-r from-lime-300 to-lime-700 flex items-center justify-center p-4">
             <div className="bg-white p-6 rounded-md shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto">
 
@@ -268,8 +265,7 @@ function Todo() {
                 </div>
             </div>
         </div>
-         {/* load the mobile nav */}
-         <MobileNav></MobileNav>
+       
 
                    
         </>

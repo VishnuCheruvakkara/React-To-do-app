@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Home, Pencil, AlarmClockPlus } from "lucide-react";
+import { Home, CalendarDays, AlarmClockPlus } from "lucide-react";
 
 function HeadNav() {
     const navItems = [
-        { name: "Edit", icon: <Pencil size={24} /> },
+        { name: "Calender", icon: <CalendarDays size={24} /> },
         { name: "Home", icon: <Home size={24} />},
         { name: "Timer", icon: <AlarmClockPlus size={24} /> },
     ];
